@@ -13,6 +13,7 @@ Renders 800x600 image to `output/render.png`.
 ## Examples
 
 `example/direct.png` was done with direct lighting (~3s)
+
 `example/tracing.png` was done with proper path tracing (~15s, more samples required)
 
 ## TODO
