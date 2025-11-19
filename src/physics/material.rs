@@ -5,6 +5,10 @@ pub trait Material: Send + Sync {
     fn colour(&self) -> Vec3;
 
     fn scatter(&self, _ray_dir: Vec3, normal: Vec3, rng: &mut dyn RngCore) -> Vec3;
+
+    fn emit(&self) -> Vec3 {
+        Vec3::ZERO
+    }
 }
 
 #[derive(Debug, Clone)]
@@ -30,6 +34,37 @@ impl Material for Diffuse {
         } else {
             -random
         }
+    }
+}
+
+#[derive(Debug, Clone)]
+pub struct Emissive {
+    pub colour: Vec3,
+    pub strength: f32,
+}
+
+impl Material for Emissive {
+    fn colour(&self) -> Vec3 {
+        Vec3::ZERO // doesn't reflect light
+    }
+
+    fn scatter(&self, _ray_dir: Vec3, normal: Vec3, rng: &mut dyn RngCore) -> Vec3 {
+        let random = Vec3::new(
+            rng.gen::<f32>() - 0.5,
+            rng.gen::<f32>() - 0.5,
+            rng.gen::<f32>() - 0.5,
+        )
+        .normalize();
+
+        if random.dot(normal) > 0.0 {
+            random
+        } else {
+            -random
+        }
+    }
+
+    fn emit(&self) -> Vec3 {
+        self.colour * self.strength
     }
 }
 

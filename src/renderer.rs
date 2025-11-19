@@ -1,5 +1,5 @@
 use crate::physics::Ray;
-use crate::scene::{Camera, HitRecord, PointLight, Sphere};
+use crate::scene::{Camera, Sphere};
 use glam::Vec3;
 use rand::Rng;
 use rayon::prelude::*;
@@ -9,7 +9,6 @@ const RAY_EPSILON: f32 = 0.001;
 pub struct Scene {
     pub camera: Camera,
     pub spheres: Vec<Sphere>,
-    pub light: PointLight,
     pub background: Vec3,
 }
 
@@ -45,10 +44,10 @@ impl Scene {
     }
 
     fn trace_ray(&self, ray: &Ray, depth: u32) -> Vec3 {
-        const MAX_DEPTH: u32 = 3;
+        const MAX_DEPTH: u32 = 5;
 
         if depth >= MAX_DEPTH {
-            return self.background;
+            return Vec3::ZERO;
         }
 
         let hit = self
@@ -58,29 +57,18 @@ impl Scene {
             .min_by(|a, b| a.t.partial_cmp(&b.t).unwrap());
 
         match hit {
-            Some(hit) => self.shade(&hit),
+            Some(hit) => {
+                let emitted = hit.material.emit();
+
+                let mut rng = rand::thread_rng();
+                let scattered_direction = hit.material.scatter(ray.direction, hit.normal, &mut rng);
+                let scattered_ray =
+                    Ray::new(hit.point + hit.normal * RAY_EPSILON, scattered_direction);
+
+                let incoming = self.trace_ray(&scattered_ray, depth + 1);
+                emitted + hit.material.colour() * incoming
+            }
             None => self.background,
-        }
-    }
-
-    fn shade(&self, hit: &HitRecord) -> Vec3 {
-        let to_light_vector = self.light.position - hit.point;
-        let distance = to_light_vector.length();
-        let to_light = to_light_vector.normalize();
-
-        let shadow_ray = Ray::new(hit.point + hit.normal * RAY_EPSILON, to_light);
-
-        let occluded = self
-            .spheres
-            .iter()
-            .filter_map(|s| s.intersect(&shadow_ray))
-            .any(|h| h.t < distance);
-
-        if occluded {
-            self.background * 0.1
-        } else {
-            let n_dot_l = hit.normal.dot(to_light).max(0.0);
-            hit.material.colour() * self.light.colour * self.light.intensity * n_dot_l
         }
     }
 }

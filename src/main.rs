@@ -1,8 +1,8 @@
 use glam::Vec3;
 use image::{Rgb, RgbImage};
 use log::info;
-use raytracer::physics::Diffuse;
-use raytracer::scene::{Camera, PointLight, Sphere};
+use raytracer::physics::{Diffuse, Emissive};
+use raytracer::scene::{Camera, Sphere};
 use raytracer::Scene;
 use std::time::Instant;
 
@@ -10,7 +10,7 @@ fn main() {
     env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     let (width, height) = (800, 600);
-    let samples_per_pixel = 8;
+    let samples_per_pixel = 100;
 
     let scene = Scene {
         camera: Camera::new(
@@ -62,12 +62,15 @@ fn main() {
                     colour: Vec3::new(0.5, 0.7, 0.9),
                 },
             ),
+            Sphere::new(
+                Vec3::new(0.0, 5.0, -3.0),
+                2.0,
+                Emissive {
+                    colour: Vec3::ONE,
+                    strength: 12.0,
+                },
+            ),
         ],
-        light: PointLight {
-            position: Vec3::new(0.0, 4.0, -3.0),
-            colour: Vec3::ONE,
-            intensity: 2.0,
-        },
         background: Vec3::new(0.15, 0.20, 0.30),
     };
 
