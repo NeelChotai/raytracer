@@ -6,7 +6,7 @@ CPU raytracer using distributed raytracing, loosely following [Ray Tracing in On
 
 ```bash
 cargo run
-RUST_LOG=debug cargo run // with debug logging
+RUST_LOG=debug cargo run # with debug logging
 ```
 
 Renders 800x600 image to `output/render.png`,
