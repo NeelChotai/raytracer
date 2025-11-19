@@ -1,13 +1,13 @@
 use glam::Vec3;
 use image::{Rgb, RgbImage};
-use log::debug;
+use log::info;
 use raytracer::physics::Diffuse;
 use raytracer::scene::{Camera, PointLight, Sphere};
 use raytracer::Scene;
 use std::time::Instant;
 
 fn main() {
-    env_logger::init();
+    env_logger::Builder::from_env(env_logger::Env::default().default_filter_or("info")).init();
 
     let (width, height) = (800, 600);
     let samples_per_pixel = 8;
@@ -71,7 +71,7 @@ fn main() {
         background: Vec3::new(0.15, 0.20, 0.30),
     };
 
-    debug!(
+    info!(
         "rendering {}x{} ({} samples/pixel)...",
         width, height, samples_per_pixel
     );
@@ -79,10 +79,10 @@ fn main() {
 
     let pixels = scene.render(width, height, samples_per_pixel);
 
-    debug!("rendered in {:.2}s", start.elapsed().as_secs_f32());
+    info!("rendered in {:.2}s", start.elapsed().as_secs_f32());
 
     save("output/render.png", &pixels, width, height);
-    debug!("saved to output/render.png");
+    info!("saved to output/render.png");
 }
 
 fn save(path: &str, pixels: &[Vec3], width: u32, height: u32) {

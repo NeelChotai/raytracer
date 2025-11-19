@@ -4,6 +4,8 @@ use glam::Vec3;
 use rand::Rng;
 use rayon::prelude::*;
 
+const RAY_EPSILON: f32 = 0.001;
+
 pub struct Scene {
     pub camera: Camera,
     pub spheres: Vec<Sphere>,
@@ -66,7 +68,7 @@ impl Scene {
         let distance = to_light_vector.length();
         let to_light = to_light_vector.normalize();
 
-        let shadow_ray = Ray::new(hit.point + hit.normal * 0.001, to_light);
+        let shadow_ray = Ray::new(hit.point + hit.normal * RAY_EPSILON, to_light);
 
         let occluded = self
             .spheres
