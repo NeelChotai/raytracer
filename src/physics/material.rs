@@ -17,22 +17,18 @@ impl Material for Diffuse {
         self.colour
     }
 
-    fn scatter(&self, normal: Vec3, rng: &mut dyn RngCore) -> Vec3 {
-        let in_sphere = loop {
-            let v = Vec3::new(
-                rng.gen::<f32>() * 2.0 - 1.0,
-                rng.gen::<f32>() * 2.0 - 1.0,
-                rng.gen::<f32>() * 2.0 - 1.0,
-            );
-            if v.length_squared() < 1.0 {
-                break v.normalize();
-            }
-        };
+    fn scatter(&self, _ray_dir: Vec3, normal: Vec3, rng: &mut dyn RngCore) -> Vec3 {
+        let random = Vec3::new(
+            rng.gen::<f32>() - 0.5,
+            rng.gen::<f32>() - 0.5,
+            rng.gen::<f32>() - 0.5,
+        )
+        .normalize();
 
-        if in_sphere.dot(normal) > 0.0 {
-            in_sphere
+        if random.dot(normal) > 0.0 {
+            random
         } else {
-            -in_sphere
+            -random
         }
     }
 }
